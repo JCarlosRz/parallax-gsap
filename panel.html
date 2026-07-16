@@ -22,8 +22,8 @@ label{display:block;font-size:.82rem;color:var(--muted);margin:12px 0 6px}
 
 /* Logo */
 .brand{display:flex;align-items:center;gap:12px}
-.brand__logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(108,92,231,.4)}
-.brand__logo svg{width:26px;height:26px}
+.brand__logo{width:46px;height:46px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000}
+.brand__logo img{width:100%;height:100%;object-fit:cover}
 .brand__name{font-weight:800;font-size:1.4rem}
 .brand__name span{color:var(--primary-2)}
 
@@ -59,11 +59,14 @@ th{color:var(--muted);font-weight:600}
 .tag-paid{background:rgba(37,211,102,.15);color:#25d366;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600}
 
 /* Factura imprimible */
-.invoice-print{background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;margin:20px auto}
+.invoice-print{position:relative;background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;margin:20px auto;overflow:hidden}
+/* Marca de agua: logo de fondo semi-transparente */
+.invoice-print::before{content:'';position:absolute;inset:0;background:url('logo.png.jpg') center/60% no-repeat;opacity:.06;pointer-events:none}
+.invoice-print > *{position:relative;z-index:1}
 .invoice-print .ip-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px}
 .invoice-print .ip-brand{display:flex;align-items:center;gap:10px}
-.invoice-print .ip-logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center}
-.invoice-print .ip-logo svg{width:24px;height:24px}
+.invoice-print .ip-logo{width:52px;height:52px;border-radius:10px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+.invoice-print .ip-logo img{width:100%;height:100%;object-fit:cover}
 .invoice-print h3{font-size:1.3rem;color:#111}
 .invoice-print .ip-meta{text-align:right;font-size:.85rem;color:#555}
 .invoice-print table{margin:14px 0}
@@ -76,19 +79,15 @@ th{color:var(--muted);font-weight:600}
   body{background:#fff;padding:0}
   .no-print{display:none!important}
   .invoice-print{box-shadow:none;margin:0;max-width:100%}
+  .invoice-print::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
 <body>
 
-<!-- SVG logo reutilizable -->
-<template id="logoSvg">
-  <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h10a4 4 0 010 8H8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10l-2 2 2 2" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="17" r="2" fill="#25d366"/></svg>
-</template>
-
 <!-- LOGIN -->
 <div class="login" id="login">
-  <div class="brand"><span class="brand__logo" data-logo></span><span class="brand__name">Digi<span>Codes</span></span></div>
+  <div class="brand"><span class="brand__logo"><img src="logo.png.jpg" alt="DigiCodes"></span><span class="brand__name">Digi<span>Codes</span></span></div>
   <h1>Panel privado</h1>
   <p>Ingresa tu PIN para acceder</p>
   <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
@@ -99,7 +98,7 @@ th{color:var(--muted);font-weight:600}
 <!-- PANEL -->
 <div class="wrap hidden" id="panel">
   <div class="topbar no-print">
-    <div class="brand"><span class="brand__logo" data-logo></span><span class="brand__name">Digi<span>Codes</span> · Panel</span></div>
+    <div class="brand"><span class="brand__logo"><img src="logo.png.jpg" alt="DigiCodes"></span><span class="brand__name">Digi<span>Codes</span> · Panel</span></div>
     <div style="display:flex;gap:12px;align-items:center">
       <div class="stat"><strong id="soldStat">+5.331</strong><span>Códigos vendidos</span></div>
       <button class="btn btn--ghost" onclick="logout()">Salir</button>
@@ -161,12 +160,6 @@ const START = 5331; // la primera factura será la 5332
 const AMOUNTS = [5,10,15,25,50,75,100];
 const PRODUCTS = ['Google Play','iTunes / Apple','PlayStation Network','Xbox','Steam','Amazon Gift Card','Netflix','Spotify Premium','Free Fire Diamantes','Roblox Robux'];
 
-function paintLogos(){
-  const tpl = document.getElementById('logoSvg').innerHTML;
-  document.querySelectorAll('[data-logo]').forEach(e => e.innerHTML = tpl);
-}
-paintLogos();
-
 if(sessionStorage.getItem('dc_auth')==='1'){ showPanel(); }
 
 function login(){
@@ -208,7 +201,6 @@ function marcarPagado(){
   const total = (amount*FEE).toFixed(2);
 
   const invoices = getInvoices();
-  // El número SIEMPRE empieza en START+1 (5332) hacia arriba
   const num = String(START + invoices.length + 1);
   const now = new Date();
   const inv = { num, date: now.toLocaleString('es-ES'), client, prod, amount, pay, total, status:'PAGADO' };
@@ -221,11 +213,10 @@ function marcarPagado(){
 }
 
 function renderInvoice(inv){
-  const logo = document.getElementById('logoSvg').innerHTML;
   document.getElementById('invoiceArea').innerHTML = `
     <div class="invoice-print" id="printable">
       <div class="ip-head">
-        <div class="ip-brand"><span class="ip-logo">${logo}</span>
+        <div class="ip-brand"><span class="ip-logo"><img src="logo.png.jpg" alt="DigiCodes"></span>
           <div><h3>DigiCodes</h3><div style="font-size:.8rem;color:#555">Códigos digitales</div></div>
         </div>
         <div class="ip-meta">
