@@ -15,6 +15,9 @@
   }
 
   function paymentText() {
+    if (!window.STORE_CONFIG || !Array.isArray(window.STORE_CONFIG.paymentMethods)) {
+      return "Efectivo y transferencia bancaria";
+    }
     return window.STORE_CONFIG.paymentMethods.join(" y ");
   }
 
