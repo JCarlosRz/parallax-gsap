@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel DigiCodes · Facturación</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--card:#1a2331;--primary:#6c5ce7;--primary-2:#a29bfe;--wa:#25d366;--text:#e6edf3;--muted:#9aa7b8;--border:#243040;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:20px}
+.wrap{max-width:1000px;margin:0 auto}
+a{color:var(--primary-2)}
+.btn{border:none;cursor:pointer;border-radius:10px;padding:12px 18px;font-weight:600;font-family:inherit;font-size:.95rem;color:#fff;transition:.2s}
+.btn:hover{filter:brightness(1.1)}
+.btn--primary{background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+.btn--green{background:var(--wa)}
+.btn--ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:#0f1620;color:var(--text);font-family:inherit;font-size:.95rem}
+label{display:block;font-size:.82rem;color:var(--muted);margin:12px 0 6px}
+
+/* Logo */
+.brand{display:flex;align-items:center;gap:12px}
+.brand__logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(108,92,231,.4)}
+.brand__logo svg{width:26px;height:26px}
+.brand__name{font-weight:800;font-size:1.4rem}
+.brand__name span{color:var(--primary-2)}
+
+/* Login */
+.login{max-width:360px;margin:12vh auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:34px;text-align:center}
+.login .brand{justify-content:center;margin-bottom:18px}
+.login h1{font-size:1.2rem;margin-bottom:6px}
+.login p{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+.login input{text-align:center;font-size:1.4rem;letter-spacing:6px;margin-bottom:14px}
+.err{color:#e17055;font-size:.85rem;min-height:18px}
+
+.hidden{display:none}
+
+/* Layout panel */
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.box h2{font-size:1.1rem;margin-bottom:6px}
+.box .sub{color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.total{font-size:2rem;font-weight:800;margin:14px 0}
+.total small{font-size:1rem;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.stat{display:inline-flex;flex-direction:column;background:#0f1620;border:1px solid var(--border);border-radius:10px;padding:8px 16px}
+.stat strong{font-size:1.3rem;color:var(--primary-2)}
+.stat span{font-size:.75rem;color:var(--muted)}
+
+/* Factura */
+.invoices{margin-top:24px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600}
+.tag-paid{background:rgba(37,211,102,.15);color:#25d366;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600}
+
+/* Factura imprimible */
+.invoice-print{background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;margin:20px auto}
+.invoice-print .ip-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px}
+.invoice-print .ip-brand{display:flex;align-items:center;gap:10px}
+.invoice-print .ip-logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center}
+.invoice-print .ip-logo svg{width:24px;height:24px}
+.invoice-print h3{font-size:1.3rem;color:#111}
+.invoice-print .ip-meta{text-align:right;font-size:.85rem;color:#555}
+.invoice-print table{margin:14px 0}
+.invoice-print th,.invoice-print td{border-bottom:1px solid #eee;color:#111}
+.invoice-print .ip-total{text-align:right;font-size:1.4rem;font-weight:800;margin-top:10px;color:#111}
+.invoice-print .ip-foot{margin-top:20px;text-align:center;color:#555;font-size:.85rem;border-top:1px dashed #ddd;padding-top:14px}
+
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff;padding:0}
+  .no-print{display:none!important}
+  .invoice-print{box-shadow:none;margin:0;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG logo reutilizable -->
+<template id="logoSvg">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h10a4 4 0 010 8H8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10l-2 2 2 2" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="17" r="2" fill="#25d366"/></svg>
+</template>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+  <div class="brand"><span class="brand__logo" data-logo></span><span class="brand__name">Digi<span>Codes</span></span></div>
+  <h1>Panel privado</h1>
+  <p>Ingresa tu PIN para acceder</p>
+  <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+  <div class="err" id="err"></div>
+  <button class="btn btn--primary" style="width:100%" onclick="login()">Entrar</button>
+</div>
+
+<!-- PANEL -->
+<div class="wrap hidden" id="panel">
+  <div class="topbar no-print">
+    <div class="brand"><span class="brand__logo" data-logo></span><span class="brand__name">Digi<span>Codes</span> · Panel</span></div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="stat"><strong id="soldStat">+5.331</strong><span>Códigos vendidos</span></div>
+      <button class="btn btn--ghost" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="cols no-print">
+    <div class="box">
+      <h2>Nuevo pedido</h2>
+      <p class="sub">Selecciona producto y monto, luego marca como pagado.</p>
+
+      <label>Producto</label>
+      <select id="fProd"></select>
+
+      <div class="row2">
+        <div><label>Monto (USD)</label><select id="fAmount"></select></div>
+        <div><label>Método de pago</label>
+          <select id="fPay"><option>Efectivo</option><option>Transferencia bancaria</option></select>
+        </div>
+      </div>
+
+      <label>Nombre del cliente</label>
+      <input id="fClient" placeholder="Ej: Juan Pérez">
+
+      <div class="total">Total: $<span id="fTotal">5.50</span> <small>USD</small></div>
+      <button class="btn btn--green" style="width:100%" onclick="marcarPagado()">✔ Marcar como PAGADO y generar factura</button>
+    </div>
+
+    <div class="box">
+      <h2>Resumen</h2>
+      <p class="sub">Datos del negocio en la factura.</p>
+      <p><strong>DigiCodes</strong></p>
+      <p>WhatsApp: +503 7016 4013</p>
+      <p>Facturación digital · El Salvador</p>
+      <hr style="border-color:var(--border);margin:14px 0">
+      <p class="sub">Facturas generadas: <strong id="invCount">0</strong></p>
+      <button class="btn btn--ghost" style="width:100%;margin-top:10px" onclick="exportar()">⬇ Exportar facturas (JSON)</button>
+    </div>
+  </div>
+
+  <!-- Factura imprimible -->
+  <div id="invoiceArea"></div>
+
+  <!-- Historial -->
+  <div class="box invoices no-print" id="history">
+    <h2>Historial de facturas</h2>
+    <table>
+      <thead><tr><th>#</th><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="histBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const PIN = '7020';
+const FEE = 1.10;
+const AMOUNTS = [5,10,15,25,50,75,100];
+const PRODUCTS = ['Google Play','iTunes / Apple','PlayStation Network','Xbox','Steam','Amazon Gift Card','Netflix','Spotify Premium','Free Fire Diamantes','Roblox Robux'];
+
+// Insertar logo SVG donde haya data-logo
+function paintLogos(){
+  const tpl = document.getElementById('logoSvg').innerHTML;
+  document.querySelectorAll('[data-logo]').forEach(e => e.innerHTML = tpl);
+}
+paintLogos();
+
+// Sesión
+if(sessionStorage.getItem('dc_auth')==='1'){ showPanel(); }
+
+function login(){
+  const v = document.getElementById('pin').value.trim();
+  if(v === PIN){ sessionStorage.setItem('dc_auth','1'); showPanel(); }
+  else { document.getElementById('err').textContent = 'PIN incorrecto'; }
+}
+function logout(){ sessionStorage.removeItem('dc_auth'); location.reload(); }
+
+function showPanel(){
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('panel').classList.remove('hidden');
+  // llenar selects
+  document.getElementById('fProd').innerHTML = PRODUCTS.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('fAmount').innerHTML = AMOUNTS.map(a=>`<option value="${a}">$${a}</option>`).join('');
+  document.getElementById('fAmount').addEventListener('change', updTotal);
+  updTotal();
+  renderHist();
+  updSold();
+}
+
+function updTotal(){
+  const a = +document.getElementById('fAmount').value;
+  document.getElementById('fTotal').textContent = (a*FEE).toFixed(2);
+}
+
+function getInvoices(){ return JSON.parse(localStorage.getItem('dc_invoices')||'[]'); }
+function saveInvoices(x){ localStorage.setItem('dc_invoices', JSON.stringify(x)); }
+function getSold(){ return 5331 + parseInt(localStorage.getItem('dc_sold')||'0',10); }
+function updSold(){
+  document.getElementById('soldStat').textContent = '+' + getSold().toLocaleString('es-ES');
+  document.getElementById('invCount').textContent = getInvoices().length;
+}
+
+function marcarPagado(){
+  const prod = document.getElementById('fProd').value;
+  const amount = +document.getElementById('fAmount').value;
+  const pay = document.getElementById('fPay').value;
+  const client = document.getElementById('fClient').value.trim() || 'Consumidor final';
+  const total = (amount*FEE).toFixed(2);
+
+  const invoices = getInvoices();
+  const num = String(invoices.length + 1).padStart(4,'0');
+  const now = new Date();
+  const inv = { num, date: now.toLocaleString('es-ES'), client, prod, amount, pay, total, status:'PAGADO' };
+  invoices.push(inv);
+  saveInvoices(invoices);
+  localStorage.setItem('dc_sold', String(parseInt(localStorage.getItem('dc_sold')||'0',10)+1));
+
+  renderInvoice(inv);
+  renderHist();
+  updSold();
+}
+
+function renderInvoice(inv){
+  const logo = document.getElementById('logoSvg').innerHTML;
+  document.getElementById('invoiceArea').innerHTML = `
+    <div class="invoice-print" id="printable">
+      <div class="ip-head">
+        <div class="ip-brand"><span class="ip-logo">${logo}</span>
+          <div><h3>DigiCodes</h3><div style="font-size:.8rem;color:#555">Códigos digitales</div></div>
+        </div>
+        <div class="ip-meta">
+          <div><strong>Factura #${inv.num}</strong></div>
+          <div>${inv.date}</div>
+          <div>WhatsApp: +503 7016 4013</div>
+        </div>
+      </div>
+      <div style="font-size:.9rem;color:#333"><strong>Cliente:</strong> ${inv.client}</div>
+      <table>
+        <thead><tr><th>Descripción</th><th>Monto</th><th>Total</th></tr></thead>
+        <tbody><tr><td>${inv.prod} $${inv.amount}</td><td>$${inv.amount}.00</td><td>$${inv.total}</td></tr></tbody>
+      </table>
+      <div style="font-size:.9rem;color:#333">Método de pago: <strong>${inv.pay}</strong> · Estado: <strong style="color:#1a9e4b">${inv.status}</strong></div>
+      <div class="ip-total">TOTAL: $${inv.total} USD</div>
+      <div class="ip-foot">¡Gracias por su compra! · DigiCodes</div>
+    </div>
+    <div class="no-print" style="text-align:center;margin:14px 0 30px">
+      <button class="btn btn--primary" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+    </div>`;
+  document.getElementById('printable').scrollIntoView({behavior:'smooth'});
+}
+
+function renderHist(){
+  const invoices = getInvoices();
+  document.getElementById('histBody').innerHTML = invoices.slice().reverse().map(inv=>`
+    <tr>
+      <td>#${inv.num}</td><td>${inv.date}</td><td>${inv.client}</td>
+      <td>${inv.prod} $${inv.amount}</td><td>$${inv.total}</td>
+      <td><span class="tag-paid">${inv.status}</span></td>
+      <td><button class="btn btn--ghost" style="padding:6px 12px" onclick='reprint(${JSON.stringify(inv)})'>Ver</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted)">Aún no hay facturas.</td></tr>';
+}
+function reprint(inv){ renderInvoice(inv); }
+
+function exportar(){
+  const data = JSON.stringify(getInvoices(), null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'facturas-digicodes.json';
+  a.click();
+}
+</script>
+</body>
+</html>
