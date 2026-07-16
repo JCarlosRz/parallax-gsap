@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo | CodeMarket SV</title>
+  <meta name="description" content="Catálogo completo de gift cards digitales con filtros por categoría y buscador." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="/parallax-gsap/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="logo" href="/parallax-gsap/index.html"><i class="fa-solid fa-bolt"></i> CodeMarket SV</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+      <nav id="mainNav" class="main-nav">
+        <a href="/parallax-gsap/index.html">Inicio</a>
+        <a href="/parallax-gsap/catalogo.html" aria-current="page">Catálogo</a>
+        <a href="/parallax-gsap/contacto.html">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section section-dark page-title parallax-panel">
+      <div class="container">
+        <h1>Catálogo completo</h1>
+        <p>Filtra por categoría o busca por plataforma y monto.</p>
+        <div class="catalog-controls">
+          <input id="searchInput" type="search" placeholder="Buscar: Google, Steam, $10..." aria-label="Buscar productos" />
+          <div id="categoryFilters" class="chips"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div id="catalogProducts" class="products-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>CodeMarket SV</h3>
+        <p>Gift cards digitales con atención por WhatsApp.</p>
+      </div>
+      <div>
+        <a class="footer-link" href="https://wa.me/50370164013" target="_blank" rel="noopener noreferrer">WhatsApp: +503 7016-4013</a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/50370164013?text=Hola,%20quiero%20comprar%20una%20gift%20card" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="/parallax-gsap/js/products.js"></script>
+  <script src="/parallax-gsap/js/main.js"></script>
+  <script src="/parallax-gsap/js/catalogo.js"></script>
+</body>
+</html>

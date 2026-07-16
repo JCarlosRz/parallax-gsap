@@ -3,43 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parallax con GSAP + ScrollTrigger</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>CodeMarket SV | Gift Cards Digitales</title>
+  <meta name="description" content="Tienda digital de gift cards: Google Play, iTunes, PSN, Xbox, Steam y más. Compra por WhatsApp en El Salvador." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="/parallax-gsap/css/styles.css" />
 </head>
 <body>
-
-  <header class="hero">
-    <h1>Efecto Parallax</h1>
-    <p>Haz scroll para ver la magia ✨</p>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="logo" href="/parallax-gsap/index.html"><i class="fa-solid fa-bolt"></i> CodeMarket SV</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+      <nav id="mainNav" class="main-nav">
+        <a href="/parallax-gsap/index.html#inicio">Inicio</a>
+        <a href="/parallax-gsap/catalogo.html">Catálogo</a>
+        <a href="/parallax-gsap/index.html#como-comprar">Cómo comprar</a>
+        <a href="/parallax-gsap/index.html#metodos">Métodos de pago</a>
+        <a href="/parallax-gsap/contacto.html">Contacto</a>
+      </nav>
+    </div>
   </header>
 
-  <section class="panel">
-    <div class="image-wrapper">
-      <img src="https://picsum.photos/id/1015/1600/900" alt="Montañas" />
-    </div>
-    <h2>Montañas</h2>
-  </section>
+  <main id="inicio">
+    <section class="hero section-dark parallax-panel">
+      <div class="container hero-grid">
+        <div>
+          <span class="tag">Tienda de códigos digitales</span>
+          <h1>Gift cards al instante para tus plataformas favoritas</h1>
+          <p>Compra códigos de Google Play, iTunes, PlayStation, Xbox, Steam, Nintendo y más con atención rápida por WhatsApp.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/parallax-gsap/catalogo.html">Ver catálogo completo</a>
+            <a class="btn btn-outline whatsapp-link" data-product="asesoría" data-amount="N/A" href="#">Contactar por WhatsApp</a>
+          </div>
+          <p class="payment-mini"><strong>Pago:</strong> Efectivo o transferencia bancaria</p>
+        </div>
+        <div class="parallax-media-wrap">
+          <img class="parallax-media" src="/parallax-gsap/assets/hero-digital.svg" alt="Ilustración digital de códigos y tarjetas" />
+        </div>
+      </div>
+    </section>
 
-  <section class="panel">
-    <div class="image-wrapper">
-      <img src="https://picsum.photos/id/1043/1600/900" alt="Bosque" />
-    </div>
-    <h2>Bosque</h2>
-  </section>
+    <section class="section section-dark" id="destacadas">
+      <div class="container">
+        <h2>Categorías destacadas</h2>
+        <p class="section-subtitle">Todo en un solo lugar para gaming, apps y entretenimiento.</p>
+        <div id="featuredCategories" class="category-grid"></div>
+      </div>
+    </section>
 
-  <section class="panel">
-    <div class="image-wrapper">
-      <img src="https://picsum.photos/id/1039/1600/900" alt="Cascada" />
-    </div>
-    <h2>Cascada</h2>
-  </section>
+    <section class="section section-alt parallax-panel" id="populares">
+      <div class="container">
+        <h2>Productos populares</h2>
+        <p class="section-subtitle">Precios de referencia competitivos y transparentes.</p>
+        <div id="popularProducts" class="products-grid"></div>
+      </div>
+    </section>
 
-  <footer class="hero">
-    <h1>Fin del viaje 🌄</h1>
+    <section class="section section-dark" id="como-comprar">
+      <div class="container">
+        <h2>¿Cómo comprar?</h2>
+        <div class="steps-grid">
+          <article><span>1</span><h3>Elige tu tarjeta</h3><p>Selecciona categoría y denominación en el catálogo.</p></article>
+          <article><span>2</span><h3>Escribe por WhatsApp</h3><p>Usa el botón “Comprar por WhatsApp” para enviar tu pedido.</p></article>
+          <article><span>3</span><h3>Realiza tu pago</h3><p>Paga por <strong>efectivo</strong> o <strong>transferencia bancaria</strong>.</p></article>
+          <article><span>4</span><h3>Recibe tu código</h3><p>Te enviamos tu código digital luego de confirmar el pago.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="metodos">
+      <div class="container">
+        <h2>Métodos de pago</h2>
+        <div class="payment-boxes">
+          <article><i class="fa-solid fa-money-bill-wave"></i><h3>Efectivo</h3><p>Coordinamos entrega/encuentro según disponibilidad.</p></article>
+          <article><i class="fa-solid fa-building-columns"></i><h3>Transferencia bancaria</h3><p>Envía comprobante y confirmamos para entregar tu código.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="faq">
+      <div class="container">
+        <h2>Preguntas frecuentes</h2>
+        <div class="faq-list">
+          <details><summary>¿Cuánto tarda la entrega?</summary><p>Normalmente entre 5 y 20 minutos durante horario de atención.</p></details>
+          <details><summary>¿Los precios son fijos?</summary><p>Son precios de referencia y pueden actualizarse según mercado.</p></details>
+          <details><summary>¿Qué necesito para comprar?</summary><p>Solo escribir al WhatsApp, elegir producto y completar pago.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contacto">
+    <div class="container footer-grid">
+      <div>
+        <h3>CodeMarket SV</h3>
+        <p>Venta profesional de gift cards digitales en El Salvador.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <a class="footer-link" href="https://wa.me/50370164013" target="_blank" rel="noopener noreferrer">WhatsApp: +503 7016-4013</a>
+      </div>
+    </div>
   </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/50370164013?text=Hola,%20quiero%20informaci%C3%B3n%20sobre%20gift%20cards" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="script.js"></script>
+  <script src="/parallax-gsap/js/products.js"></script>
+  <script src="/parallax-gsap/js/main.js"></script>
 </body>
 </html>
