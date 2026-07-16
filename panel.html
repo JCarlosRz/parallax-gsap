@@ -60,8 +60,8 @@ th{color:var(--muted);font-weight:600}
 
 /* Factura imprimible */
 .invoice-print{position:relative;background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;margin:20px auto;overflow:hidden}
-/* Marca de agua: logo de fondo semi-transparente */
-.invoice-print::before{content:'';position:absolute;inset:0;background:url('logo.png.jpg') center/60% no-repeat;opacity:.06;pointer-events:none}
+/* Marca de agua: logo cubre TODA la factura, muy suave */
+.invoice-print::before{content:'';position:absolute;inset:0;background:url('logo.png.jpg') center center/85% auto no-repeat;opacity:.05;pointer-events:none;z-index:0}
 .invoice-print > *{position:relative;z-index:1}
 .invoice-print .ip-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px}
 .invoice-print .ip-brand{display:flex;align-items:center;gap:10px}
@@ -76,9 +76,10 @@ th{color:var(--muted);font-weight:600}
 
 @media(max-width:760px){.cols{grid-template-columns:1fr}}
 @media print{
+  @page{margin:0}
   body{background:#fff;padding:0}
   .no-print{display:none!important}
-  .invoice-print{box-shadow:none;margin:0;max-width:100%}
+  .invoice-print{box-shadow:none;margin:0;max-width:100%;min-height:100vh;padding:40px}
   .invoice-print::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -156,7 +157,7 @@ th{color:var(--muted);font-weight:600}
 <script>
 const PIN = '7020';
 const FEE = 1.10;
-const START = 5331; // la primera factura será la 5332
+const START = 5331;
 const AMOUNTS = [5,10,15,25,50,75,100];
 const PRODUCTS = ['Google Play','iTunes / Apple','PlayStation Network','Xbox','Steam','Amazon Gift Card','Netflix','Spotify Premium','Free Fire Diamantes','Roblox Robux'];
 
