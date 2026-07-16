@@ -137,6 +137,7 @@ th{color:var(--muted);font-weight:600}
       <hr style="border-color:var(--border);margin:14px 0">
       <p class="sub">Facturas generadas: <strong id="invCount">0</strong></p>
       <button class="btn btn--ghost" style="width:100%;margin-top:10px" onclick="exportar()">⬇ Exportar facturas (JSON)</button>
+      <button class="btn btn--ghost" style="width:100%;margin-top:10px" onclick="reset()">🗑 Borrar historial y reiniciar</button>
     </div>
   </div>
 
@@ -156,17 +157,16 @@ th{color:var(--muted);font-weight:600}
 <script>
 const PIN = '7020';
 const FEE = 1.10;
+const START = 5331; // la primera factura será la 5332
 const AMOUNTS = [5,10,15,25,50,75,100];
 const PRODUCTS = ['Google Play','iTunes / Apple','PlayStation Network','Xbox','Steam','Amazon Gift Card','Netflix','Spotify Premium','Free Fire Diamantes','Roblox Robux'];
 
-// Insertar logo SVG donde haya data-logo
 function paintLogos(){
   const tpl = document.getElementById('logoSvg').innerHTML;
   document.querySelectorAll('[data-logo]').forEach(e => e.innerHTML = tpl);
 }
 paintLogos();
 
-// Sesión
 if(sessionStorage.getItem('dc_auth')==='1'){ showPanel(); }
 
 function login(){
@@ -179,7 +179,6 @@ function logout(){ sessionStorage.removeItem('dc_auth'); location.reload(); }
 function showPanel(){
   document.getElementById('login').classList.add('hidden');
   document.getElementById('panel').classList.remove('hidden');
-  // llenar selects
   document.getElementById('fProd').innerHTML = PRODUCTS.map(p=>`<option>${p}</option>`).join('');
   document.getElementById('fAmount').innerHTML = AMOUNTS.map(a=>`<option value="${a}">$${a}</option>`).join('');
   document.getElementById('fAmount').addEventListener('change', updTotal);
@@ -195,7 +194,7 @@ function updTotal(){
 
 function getInvoices(){ return JSON.parse(localStorage.getItem('dc_invoices')||'[]'); }
 function saveInvoices(x){ localStorage.setItem('dc_invoices', JSON.stringify(x)); }
-function getSold(){ return 5331 + parseInt(localStorage.getItem('dc_sold')||'0',10); }
+function getSold(){ return START + getInvoices().length; }
 function updSold(){
   document.getElementById('soldStat').textContent = '+' + getSold().toLocaleString('es-ES');
   document.getElementById('invCount').textContent = getInvoices().length;
@@ -209,12 +208,12 @@ function marcarPagado(){
   const total = (amount*FEE).toFixed(2);
 
   const invoices = getInvoices();
-  const num = String(invoices.length + 1).padStart(4,'0');
+  // El número SIEMPRE empieza en START+1 (5332) hacia arriba
+  const num = String(START + invoices.length + 1);
   const now = new Date();
   const inv = { num, date: now.toLocaleString('es-ES'), client, prod, amount, pay, total, status:'PAGADO' };
   invoices.push(inv);
   saveInvoices(invoices);
-  localStorage.setItem('dc_sold', String(parseInt(localStorage.getItem('dc_sold')||'0',10)+1));
 
   renderInvoice(inv);
   renderHist();
@@ -269,6 +268,16 @@ function exportar(){
   a.href = URL.createObjectURL(blob);
   a.download = 'facturas-digicodes.json';
   a.click();
+}
+
+function reset(){
+  if(confirm('¿Borrar todo el historial y reiniciar la numeración desde 5332?')){
+    localStorage.removeItem('dc_invoices');
+    localStorage.removeItem('dc_sold');
+    document.getElementById('invoiceArea').innerHTML = '';
+    renderHist(); updSold();
+    alert('Historial reiniciado. La próxima factura será #5332.');
+  }
 }
 </script>
 </body>
