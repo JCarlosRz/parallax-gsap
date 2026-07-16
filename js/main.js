@@ -65,6 +65,8 @@
   }
 
   function attachCustomWhatsAppButtons() {
+    if (typeof window.createWhatsAppLink !== "function") return;
+
     document.querySelectorAll(".whatsapp-link").forEach(function (button) {
       const product = button.getAttribute("data-product") || "gift card";
       const amount = button.getAttribute("data-amount") || "sin monto";
