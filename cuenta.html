@@ -42,9 +42,42 @@ h1{font-size:1.2rem;text-align:center;margin-bottom:4px}
 .pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:600;margin:8px 0}
 .pill.ok{background:rgba(37,211,102,.15);color:#25d366}
 .pill.warn{background:rgba(225,112,85,.15);color:#e17055}
-.order{background:#0f1620;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;text-align:left;font-size:.9rem}
+.order{background:#0f1620;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;text-align:left;font-size:.9rem;cursor:pointer;transition:.2s}
+.order:hover{border-color:var(--primary-2);background:#131c2a}
 .order strong{color:var(--primary-2)}
+.order .ver-mas{display:block;margin-top:6px;color:var(--primary-2);font-size:.78rem;font-weight:600}
 .hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+
+/* Modal factura */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow:auto;z-index:999}
+.modal.open{display:flex}
+.modal-close{position:fixed;top:16px;right:20px;background:#fff;color:#111;border:none;width:42px;height:42px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:1001;font-weight:700}
+
+/* Factura imprimible (igual que el panel) */
+.invoice-print{position:relative;background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;width:100%;margin:0 auto;overflow:hidden}
+.invoice-print::before{content:'';position:absolute;inset:0;background:url('logo.png.jpg') center center/85% auto no-repeat;opacity:.05;pointer-events:none;z-index:0}
+.invoice-print > *{position:relative;z-index:1}
+.invoice-print .ip-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px}
+.invoice-print .ip-brand{display:flex;align-items:center;gap:10px}
+.invoice-print .ip-logo{width:52px;height:52px;border-radius:10px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+.invoice-print .ip-logo img{width:100%;height:100%;object-fit:cover}
+.invoice-print h3{font-size:1.3rem;color:#111}
+.invoice-print .ip-meta{text-align:right;font-size:.85rem;color:#555}
+.invoice-print table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem}
+.invoice-print th,.invoice-print td{border-bottom:1px solid #eee;color:#111;text-align:left;padding:10px}
+.invoice-print .ip-total{text-align:right;font-size:1.4rem;font-weight:800;margin-top:10px;color:#111}
+.invoice-print .ip-foot{margin-top:20px;text-align:center;color:#555;font-size:.85rem;border-top:1px dashed #ddd;padding-top:14px}
+.invoice-print .ip-pay-btn{display:inline-block;margin-top:14px;background:#6c5ce7;color:#fff!important;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700}
+
+@media print{
+  @page{margin:0}
+  body{background:#fff;padding:0}
+  .no-print{display:none!important}
+  .modal{position:static;background:#fff;padding:0;display:block!important}
+  .modal-close{display:none!important}
+  .invoice-print{box-shadow:none;margin:0;max-width:100%;min-height:100vh;padding:40px}
+  .invoice-print::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -97,6 +130,17 @@ h1{font-size:1.2rem;text-align:center;margin-bottom:4px}
   </div>
 
   <div class="link"><a href="index.html">← Volver a la tienda</a></div>
+</div>
+
+<!-- MODAL FACTURA -->
+<div class="modal" id="invoiceModal">
+  <button class="modal-close no-print" onclick="cerrarFactura()">✕</button>
+  <div style="max-width:640px;width:100%">
+    <div id="invoiceArea"></div>
+    <div class="no-print" style="text-align:center;margin:14px 0 30px">
+      <button class="btn btn--primary" style="max-width:280px;margin:0 auto" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
+    </div>
+  </div>
 </div>
 
 <!-- Firebase (versión modular por CDN) -->
@@ -190,6 +234,42 @@ window.resendVerify = async () => {
   catch(e){ alert('Error al reenviar. Intenta más tarde.'); }
 };
 
+// === FACTURA (igual que el panel) ===
+window.verFactura = (o) => {
+  const tilopayBtn = (o.tilopay && (o.metodo||'').includes('Tilopay'))
+    ? `<div style="text-align:center"><a class="ip-pay-btn" href="${o.tilopay}" target="_blank" rel="noopener">💳 Pagar con Tilopay</a></div>`
+    : '';
+  const amountTxt = o.producto ? o.producto.split(' $').pop() : '';
+  $('invoiceArea').innerHTML = `
+    <div class="invoice-print" id="printable">
+      <div class="ip-head">
+        <div class="ip-brand"><span class="ip-logo"><img src="logo.png.jpg" alt="DigiCodes"></span>
+          <div><h3>DigiCodes</h3><div style="font-size:.8rem;color:#555">Códigos digitales</div></div>
+        </div>
+        <div class="ip-meta">
+          <div><strong>Factura #${o.factura||'-'}</strong></div>
+          <div>${o.fechaTexto||''}</div>
+          <div>WhatsApp: +503 7016 4013</div>
+        </div>
+      </div>
+      <div style="font-size:.9rem;color:#333"><strong>Cliente:</strong> ${o.emailCliente||''}</div>
+      <table>
+        <thead><tr><th>Descripción</th><th>Total</th></tr></thead>
+        <tbody><tr><td>${o.producto||'Pedido'}</td><td>$${o.total||'-'}</td></tr></tbody>
+      </table>
+      <div style="font-size:.9rem;color:#333">Método de pago: <strong>${o.metodo||'-'}</strong> · Estado: <strong style="color:#1a9e4b">${o.estado||'PAGADO'}</strong></div>
+      <div class="ip-total">TOTAL: $${o.total||'-'} USD</div>
+      ${tilopayBtn}
+      <div class="ip-foot">¡Gracias por su compra! · DigiCodes</div>
+    </div>`;
+  $('invoiceModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.cerrarFactura = () => {
+  $('invoiceModal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
 // Estado de sesión
 onAuthStateChanged(auth, async user => {
   if(!user){
@@ -225,11 +305,15 @@ onAuthStateChanged(auth, async user => {
       hint.textContent = 'Aún no tienes pedidos guardados.';
       list.innerHTML = '';
     }else{
-      hint.textContent = `Tienes ${snap.size} pedido(s):`;
+      hint.textContent = `Tienes ${snap.size} pedido(s). Toca uno para ver la factura:`;
       list.innerHTML = snap.docs.map(d=>{
         const o = d.data();
-        return `<div class="order"><strong>${o.producto||'Pedido'}</strong> · $${o.total||'-'}<br>
-          <span style="color:var(--muted);font-size:.82rem">✔ ${o.estado||'Pendiente'} · Factura #${o.factura||'-'} · ${o.fechaTexto||''}</span></div>`;
+        const safe = JSON.stringify(o).replace(/'/g,"&#39;");
+        return `<div class="order" onclick='verFactura(${safe})'>
+          <strong>${o.producto||'Pedido'}</strong> · $${o.total||'-'}<br>
+          <span style="color:var(--muted);font-size:.82rem">✔ ${o.estado||'Pendiente'} · Factura #${o.factura||'-'} · ${o.fechaTexto||''}</span>
+          <span class="ver-mas">📄 Ver factura →</span>
+        </div>`;
       }).join('');
     }
   }catch(e){
