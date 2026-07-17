@@ -211,10 +211,15 @@ onAuthStateChanged(auth, async user => {
       <button class="btn btn--ghost" onclick="resendVerify()">Reenviar correo de verificación</button>`;
   }
 
-  // Cargar pedidos del usuario desde Firestore
+  // Cargar pedidos del usuario desde Firestore (por CORREO)
   const hint = $('ordersHint'), list = $('ordersList');
   try{
-    const q = query(collection(db,'pedidos'), where('uid','==',user.uid), orderBy('fecha','desc'));
+    const emailKey = (user.email || '').toLowerCase();
+    const q = query(
+      collection(db,'pedidos'),
+      where('emailCliente','==',emailKey),
+      orderBy('fecha','desc')
+    );
     const snap = await getDocs(q);
     if(snap.empty){
       hint.textContent = 'Aún no tienes pedidos guardados.';
@@ -224,7 +229,7 @@ onAuthStateChanged(auth, async user => {
       list.innerHTML = snap.docs.map(d=>{
         const o = d.data();
         return `<div class="order"><strong>${o.producto||'Pedido'}</strong> · $${o.total||'-'}<br>
-          <span style="color:var(--muted);font-size:.82rem">${o.estado||'Pendiente'} · ${o.fechaTexto||''}</span></div>`;
+          <span style="color:var(--muted);font-size:.82rem">✔ ${o.estado||'Pendiente'} · Factura #${o.factura||'-'} · ${o.fechaTexto||''}</span></div>`;
       }).join('');
     }
   }catch(e){
