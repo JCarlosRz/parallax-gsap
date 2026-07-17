@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi cuenta · DigiCodes</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--card:#1a2331;--primary:#6c5ce7;--primary-2:#a29bfe;--wa:#25d366;--text:#e6edf3;--muted:#9aa7b8;--border:#243040;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:20px;min-height:100vh}
+.wrap{max-width:460px;margin:6vh auto}
+a{color:var(--primary-2)}
+.btn{border:none;cursor:pointer;border-radius:10px;padding:12px 18px;font-weight:600;font-family:inherit;font-size:.95rem;color:#fff;transition:.2s;width:100%}
+.btn:hover{filter:brightness(1.1)}
+.btn--primary{background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+.btn--green{background:var(--wa)}
+.btn--ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input{width:100%;padding:12px 13px;border-radius:10px;border:1px solid var(--border);background:#0f1620;color:var(--text);font-family:inherit;font-size:.95rem;margin-bottom:12px}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:30px}
+.brand{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:16px}
+.brand__logo{width:46px;height:46px;border-radius:12px;overflow:hidden;background:#000}
+.brand__logo img{width:100%;height:100%;object-fit:cover}
+.brand__name{font-weight:800;font-size:1.4rem}
+.brand__name span{color:var(--primary-2)}
+h1{font-size:1.2rem;text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.9rem;text-align:center;margin-bottom:20px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:10px;background:#0f1620;border:1px solid var(--border);cursor:pointer;font-weight:600;color:var(--muted)}
+.tab.active{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-color:transparent}
+.msg{font-size:.85rem;min-height:20px;margin:6px 0 10px;text-align:center}
+.msg.err{color:#e17055}
+.msg.ok{color:#25d366}
+.hidden{display:none}
+.link{text-align:center;margin-top:14px;font-size:.9rem}
+.link a{cursor:pointer}
+/* Panel usuario */
+.userbox{text-align:center}
+.userbox .email{font-weight:600;color:var(--primary-2);word-break:break-all}
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:600;margin:8px 0}
+.pill.ok{background:rgba(37,211,102,.15);color:#25d366}
+.pill.warn{background:rgba(225,112,85,.15);color:#e17055}
+.order{background:#0f1620;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;text-align:left;font-size:.9rem}
+.order strong{color:var(--primary-2)}
+.hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="brand__logo"><img src="logo.png.jpg" alt="DigiCodes"></span><span class="brand__name">Digi<span>Codes</span></span></div>
+
+  <!-- AUTH -->
+  <div class="card" id="authCard">
+    <div class="tabs">
+      <div class="tab active" id="tabLogin" onclick="switchTab('login')">Iniciar sesión</div>
+      <div class="tab" id="tabReg" onclick="switchTab('reg')">Crear cuenta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="formLogin">
+      <label>Correo</label>
+      <input id="lEmail" type="email" placeholder="tucorreo@gmail.com" autocomplete="email">
+      <label>Contraseña</label>
+      <input id="lPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      <div class="msg" id="lMsg"></div>
+      <button class="btn btn--primary" onclick="doLogin()">Entrar</button>
+      <div class="link"><a onclick="doReset()">¿Olvidaste tu contraseña?</a></div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="formReg" class="hidden">
+      <label>Nombre</label>
+      <input id="rName" type="text" placeholder="Tu nombre">
+      <label>Correo</label>
+      <input id="rEmail" type="email" placeholder="tucorreo@gmail.com" autocomplete="email">
+      <label>Contraseña (mín. 6 caracteres)</label>
+      <input id="rPass" type="password" placeholder="••••••••" autocomplete="new-password">
+      <div class="msg" id="rMsg"></div>
+      <button class="btn btn--green" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+
+  <!-- USUARIO LOGUEADO -->
+  <div class="card hidden userbox" id="userCard">
+    <h1>Hola 👋</h1>
+    <p class="email" id="uEmail"></p>
+    <div id="verifyZone"></div>
+    <hr class="hr">
+    <h1 style="text-align:left;font-size:1.05rem">Mis pedidos</h1>
+    <p class="sub" style="text-align:left" id="ordersHint">Cargando...</p>
+    <div id="ordersList"></div>
+    <hr class="hr">
+    <a href="index.html" class="btn btn--ghost" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px">🛒 Ir a la tienda</a>
+    <button class="btn btn--ghost" onclick="doLogout()">Cerrar sesión</button>
+  </div>
+
+  <div class="link"><a href="index.html">← Volver a la tienda</a></div>
+</div>
+
+<!-- Firebase (versión modular por CDN) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  sendEmailVerification, signOut, onAuthStateChanged, sendPasswordResetEmail,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, query, where, orderBy, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS3YfwpFyDmOf9Gl-niGGVkZTBp1zR_R0",
+  authDomain: "digicodes-web.firebaseapp.com",
+  projectId: "digicodes-web",
+  storageBucket: "digicodes-web.firebasestorage.app",
+  messagingSenderId: "32063045523",
+  appId: "1:32063045523:web:2f72001e824a3a85cff266",
+  measurementId: "G-L9TDYN2LQ1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Helpers UI
+const $ = id => document.getElementById(id);
+window.switchTab = t => {
+  const login = t === 'login';
+  $('tabLogin').classList.toggle('active', login);
+  $('tabReg').classList.toggle('active', !login);
+  $('formLogin').classList.toggle('hidden', !login);
+  $('formReg').classList.toggle('hidden', login);
+};
+
+function friendlyError(e){
+  const c = e.code || '';
+  if(c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found')) return 'Correo o contraseña incorrectos.';
+  if(c.includes('email-already-in-use')) return 'Ese correo ya está registrado. Inicia sesión.';
+  if(c.includes('invalid-email')) return 'El correo no es válido.';
+  if(c.includes('weak-password')) return 'La contraseña debe tener al menos 6 caracteres.';
+  if(c.includes('too-many-requests')) return 'Demasiados intentos. Espera un momento.';
+  return 'Ocurrió un error. Intenta de nuevo.';
+}
+
+// REGISTRO
+window.doRegister = async () => {
+  const name = $('rName').value.trim();
+  const email = $('rEmail').value.trim();
+  const pass = $('rPass').value;
+  const msg = $('rMsg'); msg.textContent=''; msg.className='msg';
+  if(!name){ msg.textContent='Escribe tu nombre.'; msg.classList.add('err'); return; }
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    if(name) await updateProfile(cred.user, { displayName: name });
+    await sendEmailVerification(cred.user);
+    msg.textContent = '✅ Cuenta creada. Te enviamos un correo de verificación.';
+    msg.classList.add('ok');
+  }catch(e){ msg.textContent = friendlyError(e); msg.classList.add('err'); }
+};
+
+// LOGIN
+window.doLogin = async () => {
+  const email = $('lEmail').value.trim();
+  const pass = $('lPass').value;
+  const msg = $('lMsg'); msg.textContent=''; msg.className='msg';
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+  }catch(e){ msg.textContent = friendlyError(e); msg.classList.add('err'); }
+};
+
+// RESET PASSWORD
+window.doReset = async () => {
+  const email = $('lEmail').value.trim();
+  const msg = $('lMsg'); msg.textContent=''; msg.className='msg';
+  if(!email){ msg.textContent='Escribe tu correo arriba primero.'; msg.classList.add('err'); return; }
+  try{
+    await sendPasswordResetEmail(auth, email);
+    msg.textContent = '📧 Te enviamos un enlace para restablecer tu contraseña.';
+    msg.classList.add('ok');
+  }catch(e){ msg.textContent = friendlyError(e); msg.classList.add('err'); }
+};
+
+window.doLogout = () => signOut(auth);
+
+window.resendVerify = async () => {
+  try{ await sendEmailVerification(auth.currentUser); alert('📧 Correo de verificación reenviado.'); }
+  catch(e){ alert('Error al reenviar. Intenta más tarde.'); }
+};
+
+// Estado de sesión
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    $('authCard').classList.remove('hidden');
+    $('userCard').classList.add('hidden');
+    return;
+  }
+  $('authCard').classList.add('hidden');
+  $('userCard').classList.remove('hidden');
+  $('uEmail').textContent = user.email;
+
+  // Verificación
+  const vz = $('verifyZone');
+  if(user.emailVerified){
+    vz.innerHTML = '<span class="pill ok">✔ Correo verificado</span>';
+  }else{
+    vz.innerHTML = `<span class="pill warn">⚠ Correo sin verificar</span>
+      <p class="sub">Revisa tu bandeja (y spam) y abre el enlace que te enviamos.</p>
+      <button class="btn btn--ghost" onclick="resendVerify()">Reenviar correo de verificación</button>`;
+  }
+
+  // Cargar pedidos del usuario desde Firestore
+  const hint = $('ordersHint'), list = $('ordersList');
+  try{
+    const q = query(collection(db,'pedidos'), where('uid','==',user.uid), orderBy('fecha','desc'));
+    const snap = await getDocs(q);
+    if(snap.empty){
+      hint.textContent = 'Aún no tienes pedidos guardados.';
+      list.innerHTML = '';
+    }else{
+      hint.textContent = `Tienes ${snap.size} pedido(s):`;
+      list.innerHTML = snap.docs.map(d=>{
+        const o = d.data();
+        return `<div class="order"><strong>${o.producto||'Pedido'}</strong> · $${o.total||'-'}<br>
+          <span style="color:var(--muted);font-size:.82rem">${o.estado||'Pendiente'} · ${o.fechaTexto||''}</span></div>`;
+      }).join('');
+    }
+  }catch(e){
+    hint.textContent = 'No se pudieron cargar los pedidos (revisa reglas de Firestore).';
+    console.error(e);
+  }
+});
+</script>
+</body>
+</html>
