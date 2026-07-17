@@ -113,6 +113,24 @@ img{max-width:100%;display:block}
 .contacto__box h3{margin-bottom:4px}
 .contacto__box p{margin-bottom:18px}
 
+/* Buscador de productos */
+.search-box{display:flex;justify-content:center;margin-bottom:20px}
+.search-box input{max-width:420px;width:100%;padding:11px 18px;border-radius:999px;border:1px solid var(--border);background:#0f1620;color:var(--text);font-family:inherit;font-size:.95rem;outline:none;transition:.2s border-color}
+.search-box input:focus{border-color:var(--primary-2)}
+.search-box input::placeholder{color:var(--muted)}
+.no-results{text-align:center;padding:40px 20px;color:var(--muted);display:none}
+.no-results p{margin-bottom:14px}
+
+/* Reseñas */
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px}
+.review-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;gap:12px}
+.review-card__stars{color:#fdcb6e;font-size:1.1rem;letter-spacing:2px}
+.review-card__comment{color:var(--muted);font-size:.95rem;line-height:1.65;flex:1}
+.review-card__author{display:flex;align-items:center;gap:12px;margin-top:4px}
+.review-card__avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0}
+.review-card__name{font-weight:600;font-size:.92rem}
+.review-card__date{font-size:.78rem;color:var(--muted)}
+
 /* Footer */
 .footer{border-top:1px solid var(--border);padding:30px 0;background:var(--bg)}
 .footer__inner{text-align:center;color:var(--muted)}
