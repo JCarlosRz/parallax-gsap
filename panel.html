@@ -75,6 +75,7 @@ th{color:var(--muted);font-weight:600}
 .invoice-print th,.invoice-print td{border-bottom:1px solid #eee;color:#111}
 .invoice-print .ip-total{text-align:right;font-size:1.4rem;font-weight:800;margin-top:10px;color:#111}
 .invoice-print .ip-foot{margin-top:20px;text-align:center;color:#555;font-size:.85rem;border-top:1px dashed #ddd;padding-top:14px}
+.invoice-print .ip-pay-btn{display:inline-block;margin-top:14px;background:#6c5ce7;color:#fff!important;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700}
 
 @media(max-width:760px){.cols{grid-template-columns:1fr}}
 @media print{
@@ -119,8 +120,18 @@ th{color:var(--muted);font-weight:600}
       <div class="row2">
         <div><label>Monto (USD)</label><select id="fAmount"></select></div>
         <div><label>Método de pago</label>
-          <select id="fPay"><option>Efectivo</option><option>Transferencia bancaria</option></select>
+          <select id="fPay" onchange="togglePay()">
+            <option>Efectivo</option>
+            <option>Transferencia bancaria</option>
+            <option>Tarjeta de crédito/débito (Tilopay)</option>
+          </select>
         </div>
+      </div>
+
+      <div id="tilopayRow" style="display:none">
+        <label>Link de pago Tilopay (opcional)</label>
+        <input id="fTilopay" type="url" placeholder="https://tilopay.com/pay/...">
+        <p class="sub" style="margin-top:6px">Si pegas el link, saldrá como botón "Pagar con Tilopay" en la factura.</p>
       </div>
 
       <label>Nombre del cliente</label>
@@ -178,7 +189,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Guarda el pedido en Firestore ligado al correo del cliente
 window.guardarEnNube = async (pedido) => {
   const msg = document.getElementById('cloudMsg');
   if(!pedido.email){
@@ -192,6 +202,7 @@ window.guardarEnNube = async (pedido) => {
       producto: pedido.prod + ' $' + pedido.amount,
       total: pedido.total,
       metodo: pedido.pay,
+      tilopay: pedido.tilopay || '',
       estado: 'PAGADO',
       factura: pedido.num,
       fecha: Date.now(),
@@ -234,6 +245,13 @@ function showPanel(){
   updSold();
 }
 
+// Mostrar/ocultar campo de link Tilopay
+function togglePay(){
+  const isTilopay = document.getElementById('fPay').value.includes('Tilopay');
+  document.getElementById('tilopayRow').style.display = isTilopay ? 'block' : 'none';
+}
+window.togglePay = togglePay;
+
 function updTotal(){
   const a = +document.getElementById('fAmount').value;
   document.getElementById('fTotal').textContent = (a*FEE).toFixed(2);
@@ -253,12 +271,13 @@ function marcarPagado(){
   const pay = document.getElementById('fPay').value;
   const client = document.getElementById('fClient').value.trim() || 'Consumidor final';
   const email = document.getElementById('fEmail').value.trim();
+  const tilopay = document.getElementById('fTilopay') ? document.getElementById('fTilopay').value.trim() : '';
   const total = (amount*FEE).toFixed(2);
 
   const invoices = getInvoices();
   const num = String(START + invoices.length + 1);
   const now = new Date();
-  const inv = { num, date: now.toLocaleString('es-ES'), client, email, prod, amount, pay, total, status:'PAGADO' };
+  const inv = { num, date: now.toLocaleString('es-ES'), client, email, prod, amount, pay, tilopay, total, status:'PAGADO' };
   invoices.push(inv);
   saveInvoices(invoices);
 
@@ -266,11 +285,13 @@ function marcarPagado(){
   renderHist();
   updSold();
 
-  // Guardar en Firestore (nube) para que el cliente lo vea
   if(window.guardarEnNube) window.guardarEnNube(inv);
 }
 
 function renderInvoice(inv){
+  const tilopayBtn = (inv.tilopay && inv.pay.includes('Tilopay'))
+    ? `<div style="text-align:center"><a class="ip-pay-btn" href="${inv.tilopay}" target="_blank" rel="noopener">💳 Pagar con Tilopay</a></div>`
+    : '';
   document.getElementById('invoiceArea').innerHTML = `
     <div class="invoice-print" id="printable">
       <div class="ip-head">
@@ -290,6 +311,7 @@ function renderInvoice(inv){
       </table>
       <div style="font-size:.9rem;color:#333">Método de pago: <strong>${inv.pay}</strong> · Estado: <strong style="color:#1a9e4b">${inv.status}</strong></div>
       <div class="ip-total">TOTAL: $${inv.total} USD</div>
+      ${tilopayBtn}
       <div class="ip-foot">¡Gracias por su compra! · DigiCodes</div>
     </div>
     <div class="no-print" style="text-align:center;margin:14px 0 30px">
