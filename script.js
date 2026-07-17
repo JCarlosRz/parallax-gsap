@@ -59,15 +59,43 @@ function render(list){
 
 render(products);
 
-// Filtros
+// Estado de filtros
+let currentFilter = 'all';
+let currentSearch = '';
+
+function applyFilters() {
+  let list = products;
+  if (currentFilter !== 'all') list = list.filter(p => p.cat === currentFilter);
+  if (currentSearch) {
+    const s = currentSearch.toLowerCase();
+    list = list.filter(p => p.name.toLowerCase().includes(s) || p.tag.toLowerCase().includes(s));
+  }
+  render(list);
+  // Mostrar/ocultar mensaje de sin resultados
+  const noResults = document.getElementById('noResults');
+  if (noResults) noResults.style.display = list.length === 0 ? 'block' : 'none';
+}
+
+applyFilters();
+
+// Filtros por categoría
 document.getElementById('filters').addEventListener('click', e => {
   const btn = e.target.closest('.chip');
   if(!btn) return;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  const f = btn.dataset.filter;
-  render(f === 'all' ? products : products.filter(p => p.cat === f));
+  currentFilter = btn.dataset.filter;
+  applyFilters();
 });
+
+// Buscador en vivo
+const searchInput = document.getElementById('productSearch');
+if (searchInput) {
+  searchInput.addEventListener('input', e => {
+    currentSearch = e.target.value.trim();
+    applyFilters();
+  });
+}
 
 // Menú móvil
 const navToggle = document.getElementById('navToggle');

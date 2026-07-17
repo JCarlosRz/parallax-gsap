@@ -110,6 +110,20 @@ th{color:var(--muted);font-weight:600}
   </div>
 
   <div class="cols no-print">
+    <!-- Bloque de estadísticas -->
+    <div class="box" style="grid-column:1/-1">
+      <h2>📊 Estadísticas de ventas</h2>
+      <p class="sub">Resumen de facturación. Se actualiza al marcar pedidos como pagados.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:14px">
+        <div class="stat"><strong id="statTotalHoy">$0.00</strong><span>Total vendido hoy</span></div>
+        <div class="stat"><strong id="statCountHoy">0</strong><span>Facturas de hoy</span></div>
+        <div class="stat"><strong id="statTotalMes">$0.00</strong><span>Total vendido este mes</span></div>
+        <div class="stat"><strong id="statCountMes">0</strong><span>Facturas del mes</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols no-print">
     <div class="box">
       <h2>Nuevo pedido</h2>
       <p class="sub">Selecciona producto y monto, luego marca como pagado.</p>
@@ -247,6 +261,7 @@ function showPanel(){
   updTotal();
   renderHist();
   updSold();
+  calcStats();
 }
 
 function togglePay(){
@@ -268,6 +283,43 @@ function updSold(){
   document.getElementById('invCount').textContent = getInvoices().length;
 }
 
+// Calcula estadísticas de ventas por día y mes
+function calcStats(){
+  const invoices = getInvoices();
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const thisYear = now.getFullYear();
+  const thisMonth = now.getMonth();
+
+  let totalHoy = 0, countHoy = 0, totalMes = 0, countMes = 0;
+
+  invoices.forEach(inv => {
+    const total = parseFloat(inv.total) || 0;
+    let d = null;
+    if (inv.ts) {
+      d = new Date(inv.ts);
+    } else {
+      // Para facturas antiguas sin ts, intentar parsear la fecha de texto
+      try { d = new Date(inv.date); } catch(e) { /* ignorar */ }
+    }
+    if (!d || isNaN(d.getTime())) return;
+
+    if (d.toDateString() === todayStr) {
+      totalHoy += total; countHoy++;
+    }
+    if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) {
+      totalMes += total; countMes++;
+    }
+  });
+
+  const fmt = n => '$' + n.toFixed(2);
+  const el = id => document.getElementById(id);
+  if(el('statTotalHoy'))   el('statTotalHoy').textContent   = fmt(totalHoy);
+  if(el('statCountHoy'))   el('statCountHoy').textContent   = countHoy;
+  if(el('statTotalMes'))   el('statTotalMes').textContent   = fmt(totalMes);
+  if(el('statCountMes'))   el('statCountMes').textContent   = countMes;
+}
+
 function marcarPagado(){
   const prod = document.getElementById('fProd').value;
   const amount = +document.getElementById('fAmount').value;
@@ -281,13 +333,14 @@ function marcarPagado(){
   const invoices = getInvoices();
   const num = String(START + invoices.length + 1);
   const now = new Date();
-  const inv = { num, date: now.toLocaleString('es-ES'), client, email, whats, prod, amount, pay, tilopay, total, status:'PAGADO' };
+  const inv = { num, date: now.toLocaleString('es-ES'), ts: now.getTime(), client, email, whats, prod, amount, pay, tilopay, total, status:'PAGADO' };
   invoices.push(inv);
   saveInvoices(invoices);
 
   renderInvoice(inv);
   renderHist();
   updSold();
+  calcStats();
 
   if(window.guardarEnNube) window.guardarEnNube(inv);
 }
@@ -306,7 +359,7 @@ function waLink(inv){
     `✅ Estado: ${inv.status}`,
     inv.tilopay && inv.pay.includes('Tilopay') ? `\n🔗 Paga aquí: ${inv.tilopay}` : ``,
     ``,
-    `Puedes ver tu factura también en: https://digicodes.site/cuenta.html`,
+    `Puedes ver tu factura también en: https://digicodes.site/cuenta`,
     `¡Gracias por confiar en DigiCodes! 🚀`
   ].filter(Boolean).join('\n');
   const num = inv.whats ? inv.whats : '';
