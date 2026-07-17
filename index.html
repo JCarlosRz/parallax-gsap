@@ -9,6 +9,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Pago seguro */
+    .secure-pay{margin-top:26px;text-align:center}
+    .secure-pay__badge{display:inline-flex;align-items:center;gap:8px;background:rgba(37,211,102,.12);color:#25d366;padding:8px 18px;border-radius:999px;font-weight:600;font-size:.9rem;margin-bottom:16px}
+    .secure-pay__logos{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center}
+    .secure-pay__logos span{background:#fff;color:#111;font-weight:800;font-size:.85rem;padding:8px 16px;border-radius:8px;letter-spacing:.5px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .secure-pay__logos .visa{color:#1a1f71}
+    .secure-pay__logos .mc{color:#eb001b}
+    .secure-pay__logos .tilo{background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff}
+    /* FAQ */
+    .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+    .faq-item{background:var(--card,#1a2331);border:1px solid var(--border,#243040);border-radius:12px;overflow:hidden}
+    .faq-q{width:100%;text-align:left;background:none;border:none;color:inherit;font-family:inherit;font-size:1rem;font-weight:600;padding:18px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .faq-q .plus{transition:.2s;font-size:1.3rem;color:#a29bfe}
+    .faq-item.open .plus{transform:rotate(45deg)}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:#9aa7b8}
+    .faq-a p{padding:0 20px 18px}
+    .faq-item.open .faq-a{max-height:300px}
+  </style>
 </head>
 <body>
   <!-- Header -->
@@ -19,6 +38,7 @@
         <a href="#productos">Productos</a>
         <a href="#pagos">Métodos de pago</a>
         <a href="#como">Cómo comprar</a>
+        <a href="#faq">Preguntas</a>
         <a href="#contacto">Contacto</a>
         <a href="cuenta.html">👤 Mi cuenta</a>
       </nav>
@@ -105,6 +125,18 @@
           <p>Pago seguro con tarjeta a través de <strong>Tilopay</strong>. Te enviamos tu link de pago por WhatsApp al confirmar tu pedido.</p>
         </div>
       </div>
+
+      <!-- Pago seguro -->
+      <div class="secure-pay" data-reveal>
+        <div class="secure-pay__badge">🔒 Pago 100% seguro y encriptado</div>
+        <div class="secure-pay__logos">
+          <span class="visa">VISA</span>
+          <span class="mc">Mastercard</span>
+          <span class="tilo">Tilopay</span>
+          <span>🏦 Transferencia</span>
+          <span>💵 Efectivo</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -123,8 +155,44 @@
     </div>
   </section>
 
+  <!-- Preguntas frecuentes -->
+  <section class="section section--alt" id="faq">
+    <div class="container">
+      <div class="section__head" data-reveal>
+        <h2>Preguntas frecuentes</h2>
+        <p>Resolvemos las dudas más comunes antes de tu compra.</p>
+      </div>
+      <div class="faq-list" data-reveal>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Es seguro comprar aquí? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Sí. Todos nuestros códigos son 100% originales y verificados. Los pagos con tarjeta se procesan de forma segura y encriptada a través de <strong>Tilopay</strong>.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Cuánto tarda la entrega? <span class="plus">+</span></button>
+          <div class="faq-a"><p>La entrega es inmediata. En cuanto confirmamos tu pago, te enviamos el código digital directo a tu WhatsApp, normalmente en pocos minutos.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Cómo recibo mi código? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Te lo enviamos por WhatsApp y también queda registrado en tu cuenta. Puedes ver tu factura entrando a <a href="cuenta.html">Mi cuenta</a>.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Qué métodos de pago aceptan? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Aceptamos efectivo, transferencia bancaria y tarjeta de crédito/débito (Visa y Mastercard) mediante Tilopay.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Funcionan los códigos en El Salvador y otros países? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Sí. Manejamos códigos para distintas regiones. Solo escríbenos por WhatsApp e indícanos tu país para darte el código correcto.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Puedo pedir factura? <span class="plus">+</span></button>
+          <div class="faq-a"><p>¡Claro! Cada compra genera una factura que puedes ver y descargar en PDF desde tu cuenta.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Contacto -->
-  <section class="section section--alt" id="contacto">
+  <section class="section" id="contacto">
     <div class="container contacto">
       <div data-reveal>
         <h2>Contáctanos</h2>
