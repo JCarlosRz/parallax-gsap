@@ -141,6 +141,10 @@ th{color:var(--muted);font-weight:600}
       <input id="fEmail" type="email" placeholder="cliente@correo.com">
       <p class="sub" style="margin-top:6px">Si lo dejas vacío, la factura se genera pero NO aparecerá en la cuenta del cliente.</p>
 
+      <label>WhatsApp del cliente (opcional, para enviar la factura)</label>
+      <input id="fWhats" type="tel" placeholder="Ej: 50370164013 (con código de país)">
+      <p class="sub" style="margin-top:6px">Sin espacios ni signos. Ejemplo El Salvador: 503 + número.</p>
+
       <div class="total">Total: $<span id="fTotal">5.50</span> <small>USD</small></div>
       <button class="btn btn--green" style="width:100%" onclick="marcarPagado()">✔ Marcar como PAGADO y generar factura</button>
       <div id="cloudMsg"></div>
@@ -245,7 +249,6 @@ function showPanel(){
   updSold();
 }
 
-// Mostrar/ocultar campo de link Tilopay
 function togglePay(){
   const isTilopay = document.getElementById('fPay').value.includes('Tilopay');
   document.getElementById('tilopayRow').style.display = isTilopay ? 'block' : 'none';
@@ -271,13 +274,14 @@ function marcarPagado(){
   const pay = document.getElementById('fPay').value;
   const client = document.getElementById('fClient').value.trim() || 'Consumidor final';
   const email = document.getElementById('fEmail').value.trim();
+  const whats = document.getElementById('fWhats') ? document.getElementById('fWhats').value.replace(/\D/g,'') : '';
   const tilopay = document.getElementById('fTilopay') ? document.getElementById('fTilopay').value.trim() : '';
   const total = (amount*FEE).toFixed(2);
 
   const invoices = getInvoices();
   const num = String(START + invoices.length + 1);
   const now = new Date();
-  const inv = { num, date: now.toLocaleString('es-ES'), client, email, prod, amount, pay, tilopay, total, status:'PAGADO' };
+  const inv = { num, date: now.toLocaleString('es-ES'), client, email, whats, prod, amount, pay, tilopay, total, status:'PAGADO' };
   invoices.push(inv);
   saveInvoices(invoices);
 
@@ -286,6 +290,27 @@ function marcarPagado(){
   updSold();
 
   if(window.guardarEnNube) window.guardarEnNube(inv);
+}
+
+// Arma el mensaje de WhatsApp con la factura
+function waLink(inv){
+  const linea = [
+    `*DigiCodes · Factura #${inv.num}*`,
+    ``,
+    `Hola ${inv.client} 👋`,
+    `¡Gracias por tu compra! Aquí está tu factura:`,
+    ``,
+    `🛒 Producto: ${inv.prod} $${inv.amount}`,
+    `💰 Total: $${inv.total} USD`,
+    `💳 Método: ${inv.pay}`,
+    `✅ Estado: ${inv.status}`,
+    inv.tilopay && inv.pay.includes('Tilopay') ? `\n🔗 Paga aquí: ${inv.tilopay}` : ``,
+    ``,
+    `Puedes ver tu factura también en: https://digicodes.site/cuenta.html`,
+    `¡Gracias por confiar en DigiCodes! 🚀`
+  ].filter(Boolean).join('\n');
+  const num = inv.whats ? inv.whats : '';
+  return `https://wa.me/${num}?text=${encodeURIComponent(linea)}`;
 }
 
 function renderInvoice(inv){
@@ -314,7 +339,8 @@ function renderInvoice(inv){
       ${tilopayBtn}
       <div class="ip-foot">¡Gracias por su compra! · DigiCodes</div>
     </div>
-    <div class="no-print" style="text-align:center;margin:14px 0 30px">
+    <div class="no-print" style="text-align:center;margin:14px 0 30px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn--green" href="${waLink(inv)}" target="_blank" rel="noopener">📲 Enviar factura por WhatsApp</a>
       <button class="btn btn--primary" onclick="window.print()">🖨 Imprimir / Guardar PDF</button>
     </div>`;
   document.getElementById('printable').scrollIntoView({behavior:'smooth'});
