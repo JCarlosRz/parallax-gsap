@@ -51,6 +51,9 @@ label{display:block;font-size:.82rem;color:var(--muted);margin:12px 0 6px}
 .stat strong{font-size:1.3rem;color:var(--primary-2)}
 .stat span{font-size:.75rem;color:var(--muted)}
 
+.cloud-ok{color:#25d366;font-size:.82rem;margin-top:8px}
+.cloud-warn{color:#e17055;font-size:.82rem;margin-top:8px}
+
 /* Factura */
 .invoices{margin-top:24px}
 table{width:100%;border-collapse:collapse;font-size:.9rem}
@@ -60,7 +63,6 @@ th{color:var(--muted);font-weight:600}
 
 /* Factura imprimible */
 .invoice-print{position:relative;background:#fff;color:#111;border-radius:12px;padding:34px;max-width:640px;margin:20px auto;overflow:hidden}
-/* Marca de agua: logo cubre TODA la factura, muy suave */
 .invoice-print::before{content:'';position:absolute;inset:0;background:url('logo.png.jpg') center center/85% auto no-repeat;opacity:.05;pointer-events:none;z-index:0}
 .invoice-print > *{position:relative;z-index:1}
 .invoice-print .ip-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:16px;margin-bottom:16px}
@@ -124,8 +126,13 @@ th{color:var(--muted);font-weight:600}
       <label>Nombre del cliente</label>
       <input id="fClient" placeholder="Ej: Juan Pérez">
 
+      <label>Correo del cliente (el mismo con el que se registró)</label>
+      <input id="fEmail" type="email" placeholder="cliente@correo.com">
+      <p class="sub" style="margin-top:6px">Si lo dejas vacío, la factura se genera pero NO aparecerá en la cuenta del cliente.</p>
+
       <div class="total">Total: $<span id="fTotal">5.50</span> <small>USD</small></div>
       <button class="btn btn--green" style="width:100%" onclick="marcarPagado()">✔ Marcar como PAGADO y generar factura</button>
+      <div id="cloudMsg"></div>
     </div>
 
     <div class="box">
@@ -153,6 +160,52 @@ th{color:var(--muted);font-weight:600}
     </table>
   </div>
 </div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS3YfwpFyDmOf9Gl-niGGVkZTBp1zR_R0",
+  authDomain: "digicodes-web.firebaseapp.com",
+  projectId: "digicodes-web",
+  storageBucket: "digicodes-web.firebasestorage.app",
+  messagingSenderId: "32063045523",
+  appId: "1:32063045523:web:2f72001e824a3a85cff266",
+  measurementId: "G-L9TDYN2LQ1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Guarda el pedido en Firestore ligado al correo del cliente
+window.guardarEnNube = async (pedido) => {
+  const msg = document.getElementById('cloudMsg');
+  if(!pedido.email){
+    msg.className='cloud-warn';
+    msg.textContent='⚠ Sin correo: la factura se generó pero el cliente no la verá en su cuenta.';
+    return;
+  }
+  try{
+    await addDoc(collection(db,'pedidos'), {
+      emailCliente: pedido.email.toLowerCase(),
+      producto: pedido.prod + ' $' + pedido.amount,
+      total: pedido.total,
+      metodo: pedido.pay,
+      estado: 'PAGADO',
+      factura: pedido.num,
+      fecha: Date.now(),
+      fechaTexto: pedido.date
+    });
+    msg.className='cloud-ok';
+    msg.textContent='✅ Pedido guardado. El cliente ya lo verá en "Mi cuenta".';
+  }catch(e){
+    msg.className='cloud-warn';
+    msg.textContent='⚠ No se pudo guardar en la nube (revisa reglas de Firestore). La factura sí se generó.';
+    console.error(e);
+  }
+};
+</script>
 
 <script>
 const PIN = '7020';
@@ -199,18 +252,22 @@ function marcarPagado(){
   const amount = +document.getElementById('fAmount').value;
   const pay = document.getElementById('fPay').value;
   const client = document.getElementById('fClient').value.trim() || 'Consumidor final';
+  const email = document.getElementById('fEmail').value.trim();
   const total = (amount*FEE).toFixed(2);
 
   const invoices = getInvoices();
   const num = String(START + invoices.length + 1);
   const now = new Date();
-  const inv = { num, date: now.toLocaleString('es-ES'), client, prod, amount, pay, total, status:'PAGADO' };
+  const inv = { num, date: now.toLocaleString('es-ES'), client, email, prod, amount, pay, total, status:'PAGADO' };
   invoices.push(inv);
   saveInvoices(invoices);
 
   renderInvoice(inv);
   renderHist();
   updSold();
+
+  // Guardar en Firestore (nube) para que el cliente lo vea
+  if(window.guardarEnNube) window.guardarEnNube(inv);
 }
 
 function renderInvoice(inv){
